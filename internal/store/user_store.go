@@ -14,24 +14,25 @@ type password struct {
 	hash      []byte
 }
 
-func (p *password) Set(plainTextPassword string) error {
-	hash, err := bcrypt.GenerateFromPassword([]byte(plainTextPassword), 12)
+func (p *password) Set(plaintextPassword string) error {
+	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 12)
 	if err != nil {
 		return err
 	}
+
+	p.plainText = &plaintextPassword
 	p.hash = hash
-	p.plainText = &plainTextPassword
 	return nil
 }
 
-func (p *password) Matches(plainTextPassword string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plainTextPassword))
+func (p *password) Matches(plaintextPassword string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plaintextPassword))
 	if err != nil {
 		switch {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
 			return false, nil
 		default:
-			return false, err // Kind of internal server error
+			return false, err //internal server error
 		}
 	}
 
@@ -117,7 +118,7 @@ func (s *PostgresUserStore) GetUserByUserName(username string) (*User, error) {
 		&user.ID,
 		&user.UserName,
 		&user.Email,
-		&user.PasswordHash,
+		&user.PasswordHash.hash,
 		&user.Bio,
 		&user.CreatedAt,
 		&user.UpdatedAt,
