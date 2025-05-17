@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -53,7 +52,6 @@ func (u *UseMiddleware) Authenticate(next http.Handler) http.Handler {
 		}
 
 		token := headerParts[1]
-		fmt.Println("token", token)
 		user, err := u.UserStore.GetUserToken(tokens.ScopeAuth, token)
 		if err != nil {
 			utils.WriteJSON(w, http.StatusUnauthorized, utils.Envelope{"error": "invalid token"})
